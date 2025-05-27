@@ -118,6 +118,12 @@ O que iremos avaliar:
 ### Observações:
 - O Exemplo dado da interface web é um exemplo, não necessariamente esperamos que monte como mostrado. Dito isso levaremos em conta o "arranjo" dos componentes em tela, bem como os componentes usado.
 
+## Considerações finais
+
+Agradecemos desde já por participar de nosso processo de seleção. Boa sorte!
+
+
+
 ### Links uteis
 
 - [FWRestModel](https://tdn.totvs.com/display/public/PROT/FWRestModel)
