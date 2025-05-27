@@ -103,7 +103,7 @@ Todas as operações devem se comunicar com o Protheus via API REST ( FWModel ).
 ## Pontos importantes
 O que iremos avaliar:
 
-- **Geral**: Consideraremos cada Commit feito dentro do repositório, ou seja, incentivamos ao desenvolvedor fazer quantos commits forem necessários. Tambem incentivamos que deixe comentários nos fontes, mesmo que não esteja perfeito, com os comentários poderemos entender qual a intenção. 
+- **Geral**: Consideraremos cada Commit feito dentro do repositório, ou seja, incentivamos ao desenvolvedor fazer quantos commits forem necessários. Tambem incentivamos que deixe comentários nos fontes, mesmo que não esteja perfeito, com os comentários poderemos entender qual a intenção. Em qualquer ponto do projeto nós vamos analisar o código, bem como boas praticas de desenvolvimento e Clean Code.
 - **Projeto funcional**: Iremos compilar os fontes e realizar as operações de CRUD, tanto no Protheus quanto na Interface Web. 
 - **Banco de dados**: A modelagem dos dados e a estrutura montada pelo desenvolvedor. X3_VALID, X3_RELACAO, X3_CBOX e etcs serão avaliados.
 - **Protheus**: As validações do MVC serão analisadas sintaticamente e testadas, assim como as operações de CRUD;
@@ -121,8 +121,6 @@ O que iremos avaliar:
 ## Considerações finais
 
 Agradecemos desde já por participar de nosso processo de seleção. Boa sorte!
-
-
 
 ### Links uteis
 
