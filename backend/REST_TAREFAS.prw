@@ -1,192 +1,93 @@
-#INCLUDE 'protheus.ch'
-#INCLUDE "restful.ch"
-#INCLUDE "TOTVSWebSrv.ch"
-#include "apwebsrv.ch"
-#INCLUDE "PRTOPDEF.CH"
+#Include "TOTVS.CH"
+#Include "RESTFul.ch"
 
-/*                                           
-+------------------+-------------------------------------------------------------------------------+
-! Nome             ! WSTAREFAS                                                                     !
-+------------------+-------------------------------------------------------------------------------+
-! DescriÃ§Ã£o        ! DeclaraÃ§Ã£o do WebService WSTAREFAS                                            !
-!                  !                                                                               !
-+------------------+-------------------------------------------------------------------------------+
-! Autor            ! ALAN NONATO                                                                   !
-+------------------+-------------------------------------------------------------------------------+
-! Data             ! 09/06/2025                                                                    !
-+------------------+-------------------------------------------------------------------------------+
-! Parametros       ! N/A                                                                           !
-+------------------+-------------------------------------------------------------------------------+
-! Retorno          ! N/A                                                                           !
-+------------------+-------------------------------------------------------------------------------+
-*/  
+WsRestFul tarefas Description 'API PARA MANIPULAR AS TAREFAS'
 
-WsRestful Tarefas Description 'MANIPULAÃ‡ÃƒO DE TAREFAS.'
+	WsMethod GET tarefa Description 'retorna a tarefa' path '/'
+	WsMethod POST tarefa Description 'retorna a tarefa' path '/tarefa'
+End WsRestFul
 
-	WSDATA codigo AS STRING
-	WSDATA titulo AS STRING
-	WSDATA descric AS STRING
-	WSDATA situac  AS STRING
-	WSDATA usuinc AS STRING
-	WSDATA dtconc AS STRING
-	WSDATA dtinc  AS STRING
+WSMETHOD POST tarefa WsService tarefas
+	LOCAL oRequest     := FWGetRequest()
+	LOCAL oResponse    := FWGetResponse()
+	LOCAL oJson        := JsonObject():New()
+	LOCAL cTitulo      := ""
+	LOCAL cDescricao   := ""
+	LOCAL cSituacao    := ""
+	LOCAL dDtConclusao := Ctod("")
+	LOCAL dDtInclusao  := DtoS(Date()) // Data atual como padrão
+	LOCAL cUsuario     := __cUserId
+	LOCAL cCodigo      := ""
+	LOCAL lSucesso     := .F.
+	LOCAL cMsgErro     := ""
 
-	WSMETHOD GET TAREFAS 	DESCRIPTION "BUSCA TAREFAS"   		WSSYNTAX "/tarefas" 		PATH "/TAREFAS"	TTalk "v1" PRODUCES APPLICATION_JSON
-	WSMETHOD POST TAREFA   DESCRIPTION "INSERINDO UMA TAREFA"  WSSYNTAX "/novatarefa"      PATH "/NOVATAREFA" TTalk "v1" CONSUMES APPLICATION_JSON PRODUCES APPLICATION_JSON
+	BEGIN SEQUENCE
 
-END WsRestful
+		// Lê o JSON do corpo da requisição
+		oJson := JsonObject():New(oRequest:GetBody())
 
-// MÃ©todo GET para buscar tarefas (exemplo simplificado)
-WSMETHOD GET WSSERVICE Tarefas
-	Local oResponse := JsonObject():New()
+		cTitulo      := AllTrim(oJson:GetValue("titulo"))
+		cDescricao   := AllTrim(oJson:GetValue("descricao"))
+		cSituacao    := AllTrim(oJson:GetValue("situacao"))
+		dDtConclusao := CTOD(oJson:GetValue("dataConclusao"))
+		dDtInclusao  := CTOD(oJson:GetValue("dataInclusao"))
 
-	oResponse:Add("tarefas", Array())
+		// Validações obrigatórias
+		IF Empty(cTitulo)
+			cMsgErro := "Campo Titulo é obrigatório."
+			BREAK
+		ENDIF
 
-	// Defina a resposta do serviÃ§o em JSON
-	Self:SetResponse(oResponse:ToString())
-Return
+		IF Empty(cDescricao)
+			cMsgErro := "Campo Descrição é obrigatório."
+			BREAK
+		ENDIF
 
-// MÃ©todo POST para incluir nova tarefa com subtarefas
-WSMETHOD POST WSSERVICE NovaTarefa
-	Local oRequest := Self:GetRequestBody() // Obtem o corpo da requisiÃ§Ã£o JSON
-	Local oResponse := JsonObject():New()
-	Local lSuccess := .F.
-	Local cMsg := ""
-	Local cCodigo := ""
+		IF !(cSituacao $ "1234")
+			cMsgErro := "Campo Situação inválido. Use 1, 2, 3 ou 4."
+			BREAK
+		ENDIF
 
-	// Campos da tarefa
-	Local cTitulo, cDescric, cSituac, cUsuInc, cDtConc, cDtInc
-	Local aSubtarefas := {}
+		IF Empty(cUsuario)
+			cMsgErro := "Usuário não identificado."
+			BREAK
+		ENDIF
 
-	//campos da requisiÃ§Ã£o
-	cTitulo := IIF(oRequest:Has("titulo"), oRequest:Get("titulo"), "")
-	cDescric := IIF(oRequest:Has("descric"), oRequest:Get("descric"), "")
-	cSituac  := IIF(oRequest:Has("situac"), oRequest:Get("situac"), "")
-	cUsuInc  := IIF(oRequest:Has("usuinc"), oRequest:Get("usuinc"), "")
-	cDtConc  := IIF(oRequest:Has("dtconc"), oRequest:Get("dtconc"), "")
-	cDtInc   := IIF(oRequest:Has("dtinc"), oRequest:Get("dtinc"), "")
-	aSubtarefas := IIF(oRequest:Has("subtarefas"), oRequest:Get("subtarefas"), {})
+		IF Empty(dDtInclusao)
+			dDtInclusao := Date()
+		ENDIF
 
-	// ValidaÃ§Ã£o simples
-	If Empty(cTitulo)
-		oResponse:Add("success", False)
-		oResponse:Add("message", "Campo 'titulo' Ã© obrigatÃ³rio.")
-		Self:SetResponse(oResponse:ToString())
-		Return
-	EndIf
+		// Gera código automático (usando controle de numeração)
+		cCodigo := FWGerarCodigo("ZZG") // Requer controle cadastrado no SIGACFG
 
-	// Gera cÃ³digo Ãºnico para a tarefa
-	cCodigo := StrZero( Int(TotpDateTime()), 14 ) // nÃºmero Ãºnico para cÃ³digo
+		dbUseArea(.T., "TOPCONN", "ZZG", "ZZG", .F., .F.)
+		dbAppend()
 
-	// Chama a funÃ§Ã£o para inserir a tarefa e subtarefas
-	lSuccess := newTaref(cCodigo, cTitulo, cDescric, cSituac, cUsuInc, cDtConc, cDtInc, aSubtarefas, @cMsg)
-
-	oResponse:Add("success", lSuccess)
-	oResponse:Add("message", cMsg)
-	oResponse:Add("codigo", cCodigo)
-
-	Self:SetResponse(oResponse:ToString())
-Return
-
-// FunÃ§Ã£o moderna para inserir tarefa e subtarefas
-USER FUNCTION newTaref(cCodigo, cTitulo, cDescric, cSituac, cUsuInc, cDtConc, cDtInc, aSubtarefas, @cMsg)
-	Local lSuccess := .F.
-	Local lOpenedZZG := .F.
-	Local lOpenedZZH := .F.
-	Local nAreaZZG := NIL
-	Local nAreaZZH := NIL
-	Local nCount := Len(aSubtarefas)
-	Local lInTransaction := .F.
+		ZZG->ZZG_CODIGO := cCodigo
+		ZZG->ZZG_TITULO := cTitulo
+		ZZG->ZZG_DESCRI := cDescricao
+		ZZG->ZZG_SITUAC := cSituacao
+		ZZG->ZZG_DTINC  := dDtInclusao
+		ZZG->ZZG_DTCONC := dDtConclusao
+		ZZG->ZZG_USUINC := cUsuario
 
 
-	// Abre Ã¡rea ZZG e posiciona por cÃ³digo
-	nAreaZZG := DbUseArea(.T.,, "ZZG", "ZZG", .F.)
-	If nAreaZZG == NIL
-		cMsg := "Falha ao abrir tabela ZZG."
-		Return .F.
-	EndIf
-	lOpenedZZG := .T.
+		dbCommit()
+		dbCloseArea()
 
-	DbSetOrder(1) // Ajuste para o Ã­ndice correto de "CODIGO"
-	If DbSeek(cCodigo)
-		// JÃ¡ existe essa tarefa
-		cMsg := "JÃ¡ existe uma tarefa com este cÃ³digo."
-		DbCloseArea()
-		Return .F.
-	EndIf
+		lSucesso := .T.
 
-	// Abre Ã¡rea ZZH para subtarefas
-	nAreaZZH := DbUseArea(.T.,, "ZZH", "ZZH", .F.)
-	If nAreaZZH == NIL
-		cMsg := "Falha ao abrir tabela ZZH."
-		Return .F.
-	EndIf
-	lOpenedZZH := .T.
+	END SEQUENCE
 
-	// Inicia transaÃ§Ã£o
-	BEGIN TRANSACTION
-		lInTransaction := .T.
+	// Resposta
+	IF lSucesso
+		oResponse:SetStatus(201)
+		oResponse:SetContentType("application/json")
+		oResponse:SendResponse( '{"mensagem":"Tarefa salva com sucesso","codigo":"' + cCodigo + '"}' )
+	ELSE
+		oResponse:SetStatus(400)
+		oResponse:SetContentType("application/json")
+		oResponse:SendResponse( '{"erro":"' + cMsgErro + '"}' )
+	ENDIF
 
-		// Insere tarefa em ZZG
-		DbSelectArea(nAreaZZG)
-		DbAppend()
-		FieldPut(OrdField("CODIGO"), cCodigo)
-		FieldPut(OrdField("TITULO"), cTitulo)
-		FieldPut(OrdField("DESCRIC"), cDescric)
-		FieldPut(OrdField("SITUAC"),  cSituac)
-		FieldPut(OrdField("USUINC"), cUsuInc)
-		FieldPut(OrdField("DTCONC"), cDtConc)
-		FieldPut(OrdField("DTINC"),  cDtInc)
-		// Bloqueia registro atual para evitar concorrÃªncia
-		If !FieldLock(OrdField("CODIGO"))
-			DbRollback()
-			cMsg := "Erro ao bloquear registro da tarefa."
-			Return .F.
-		EndIf
-		DbCommit()
-
-		// Insere subtarefas em ZZH
-		If nCount > 0
-			DbSelectArea(nAreaZZH)
-			For Local nI := 1 To nCount
-				DbAppend()
-				FieldPut(OrdField("CODIGO"), cCodigo)
-				// Assumindo que as subtarefas vÃªm com "titulo" e "situac"
-				FieldPut(OrdField("SUBTITULO"), aSubtarefas[nI]["titulo"])
-				FieldPut(OrdField("SITSUBT"), aSubtarefas[nI]["situac"])
-				// Bloqueia para prevenir concorrÃªncia
-				If !FieldLock(OrdField("CODIGO"))
-					DbRollback()
-					cMsg := "Erro ao bloquear registro da subtarefa."
-					Return .F.
-				EndIf
-			Next
-		EndIf
-
-		// Confirma transaÃ§Ã£o
-		DbCommit()
-		cMsg := "Tarefa e subtarefas inseridas com sucesso."
-		lSuccess := .T.
-
-	Catch oErr
-		// Em caso de erro, faz rollback se estiver em transaÃ§Ã£o
-		If lInTransaction
-			DbRollback()
-		EndIf
-		cMsg := "Erro ao inserir tarefa: " + oErr:Description
-		lSuccess := .F.
-
-		Finally
-		// Fecha Ã¡reas abertas
-		If lOpenedZZH
-			DbCloseArea()
-		EndIf
-		If lOpenedZZG
-			DbCloseArea()
-		EndIf
-
-	END TRANSACTION
-
-Return lSuccess
-
-return
+RETURN .T.

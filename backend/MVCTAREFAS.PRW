@@ -51,11 +51,11 @@ Static Function MenuDef()
 	ADD OPTION aRotina TITLE 'Imprimir' 	ACTION 'VIEWDEF.MVCTAREF' 	OPERATION 8 ACCESS 0
 	ADD OPTION aRotina TITLE 'Copiar' 		ACTION 'VIEWDEF.MVCTAREF' 	OPERATION 9 ACCESS 0
 	*/
-	AAdd(aRotina, {"Visualizar", "VIEWDEF.MVCTAREF", 6, 2, 0, Nil})
-	AAdd(aRotina, {"Incluir",    "VIEWDEF.MVCTAREF", 6, 3, 0, Nil})
-	AAdd(aRotina, {"Alterar",    "VIEWDEF.MVCTAREF", 6, 4, 0, Nil})
-	AAdd(aRotina, {"Excluir",    "VIEWDEF.MVCTAREF", 6, 5, 0, Nil})
-	AAdd(aRotina, {"Imprimir",   "VIEWDEF.MVCTAREF", 6, 8, 0, Nil})
+	AAdd(aRotina, {"Visualizar", "VIEWDEF.MVCTAREF", 5, 2, 0, Nil})
+	AAdd(aRotina, {"Incluir",    "VIEWDEF.MVCTAREF", 5, 3, 0, Nil})
+	AAdd(aRotina, {"Alterar",    "VIEWDEF.MVCTAREF", 5, 4, 0, Nil})
+	AAdd(aRotina, {"Excluir",    "VIEWDEF.MVCTAREF", 5, 5, 0, Nil})
+	AAdd(aRotina, {"Imprimir",   "VIEWDEF.MVCTAREF", 5, 8, 0, Nil})
 
 Return aRotina
 
