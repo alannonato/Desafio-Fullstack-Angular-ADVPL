@@ -17,9 +17,6 @@ User Function MVCTAREF()
 	//Seta a descrição do Browse
 	oBrowse:SetDescription('Gerenciador de tarefas')
 
-	//Adicao de legendas
-	//oBrowse:AddLegend( "U01_STATUS =='A'", "GREEN" , "Aluno Ativo")
-
 	//Grafico
 	oBrowse:SetAttach(.T.)
 
@@ -45,7 +42,7 @@ Static Function MenuDef()
 	//AAdd(aRotina,{"Alterar" 	, "VIEWDEF.MVCTAREF" , 0, 4, 0, Nil } )
 	//AAdd(aRotina,{"Excluir" 	, "VIEWDEF.MVCTAREF" , 0, 5, 0, Nil } )
 	//AAdd(aRotina,{"Imprimir" 	, "VIEWDEF.MVCTAREF" , 0, 8, 0, Nil } )
-
+	/*
 	ADD OPTION aRotina TITLE 'Pesquisar' 	ACTION 'PesqBrw' 			OPERATION 1 ACCESS 0
 	ADD OPTION aRotina TITLE 'Visualizar' 	ACTION 'VIEWDEF.MVCTAREF' 	OPERATION 2 ACCESS 0
 	ADD OPTION aRotina TITLE 'Incluir' 		ACTION 'VIEWDEF.MVCTAREF' 	OPERATION 3 ACCESS 0
@@ -53,6 +50,12 @@ Static Function MenuDef()
 	ADD OPTION aRotina TITLE 'Excluir' 		ACTION 'VIEWDEF.MVCTAREF' 	OPERATION 5 ACCESS 0
 	ADD OPTION aRotina TITLE 'Imprimir' 	ACTION 'VIEWDEF.MVCTAREF' 	OPERATION 8 ACCESS 0
 	ADD OPTION aRotina TITLE 'Copiar' 		ACTION 'VIEWDEF.MVCTAREF' 	OPERATION 9 ACCESS 0
+	*/
+	AAdd(aRotina, {"Visualizar", "VIEWDEF.MVCTAREF", 6, 2, 0, Nil})
+	AAdd(aRotina, {"Incluir",    "VIEWDEF.MVCTAREF", 6, 3, 0, Nil})
+	AAdd(aRotina, {"Alterar",    "VIEWDEF.MVCTAREF", 6, 4, 0, Nil})
+	AAdd(aRotina, {"Excluir",    "VIEWDEF.MVCTAREF", 6, 5, 0, Nil})
+	AAdd(aRotina, {"Imprimir",   "VIEWDEF.MVCTAREF", 6, 8, 0, Nil})
 
 Return aRotina
 
